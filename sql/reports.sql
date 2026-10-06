@@ -163,15 +163,25 @@ Social
 */
 
 -- REPORT (I): ALTER TABLE + UPDATE with CASE
-ALTER TABLE customers ADD COLUMN loyalty_tier VARCHAR(10);
+
+SET SQL_SAFE_UPDATES = 0;
+/* Since we're not using WHERE clause so SQL security doesn't allow updation, so we are disabling safe update mode */
+
+ALTER TABLE customers ADD loyalty_tier VARCHAR(10);
 
 UPDATE customers 
-SET loyalty_tier = CASE WHEN city_tier = 1 THEN 'Gold' ELSE 'Silver' END;
+SET loyalty_tier = CASE 
+    WHEN city_tier = 1 THEN 'Gold' 
+    ELSE 'Silver' 
+END;
 
 SELECT loyalty_tier, COUNT(*) 
 FROM customers 
 GROUP BY loyalty_tier;
+
+SET SQL_SAFE_UPDATES = 1;
 /*
+turning back safe update mode on
 EXPECTED OUTPUT:
 loyalty_tier|COUNT(*)
 Gold|28
