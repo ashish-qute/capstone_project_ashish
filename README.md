@@ -29,75 +29,133 @@ feeding structured SQL data into a Python pandas analysis layer, which in turn f
     ├── generate_narrative.py           # Gemini GenAI + deterministic offline narrative engine
     └── sample_output.txt               # Validated sample output narrative
 
-## STEP BY STEP EXECUTION GUIDE
+## Step-by-Step Execution Guide
 
-## Prerequisites:
-Python 3.9+
-SQLite3 CLI / MYSQL Workbench
-Required Python libraries: pandas, numpy, matplotlib, google-genai
+### Prerequisites
 
-### Install dependencies:
-Bash
+* **Python**: 3.9+
+* **Database**: SQLite3 CLI or MySQL Workbench
+* **Python Libraries**: `pandas`, `numpy`, `matplotlib`, `google-genai`
+
+### Installation
+
+Install all required Python dependencies:
+
+```bash
 pip install pandas numpy matplotlib google-genai
 
+```
 
-## PART 1: SQL Relational Layer & Reporting
+---
 
-Initialize Database and Load Seed Data:
-Execute schema.sql and seed_data.sql in SQLite/MYSQL Workbench(your choice):
+## Pipeline Execution
 
-Bash
+### Part 1: SQL Relational Layer & Reporting
+
+#### 1. Initialize Database and Load Seed Data
+
+Execute `schema.sql` and `seed_data.sql` in SQLite (or MySQL Workbench):
+
+```bash
 sqlite3 mamaearth.db < sql/schema.sql
 sqlite3 mamaearth.db < sql/seed_data.sql
 
-Verification Counts:
-SELECT COUNT(*) FROM customers; → 45
-SELECT COUNT(*) FROM products; → 16
-SELECT COUNT(*) FROM orders; → 180
+```
 
-RUN ANALYTICAL REPORTS:
-Execute the report queries:
-Bash
+#### 2. Verification Counts
+
+Run the following checks to confirm row counts:
+
+```sql
+SELECT COUNT(*) FROM customers; -- Expected: 45
+SELECT COUNT(*) FROM products;  -- Expected: 16
+SELECT COUNT(*) FROM orders;    -- Expected: 180
+
+```
+
+#### 3. Run Analytical Reports
+
+Execute the analytical queries:
+
+```bash
 sqlite3 mamaearth.db < sql/reports.sql
-All expected outputs and comments are documented directly above each query in sql/reports.sql.
 
-## PART 2: Python/Pandas Data Wrangling & EDA
-1. Run Cleaning and Analysis Pipeline:
-Bash
+```
+
+> **Note:** All expected outputs and comments are documented directly below each query inside `sql/reports.sql`.
+
+---
+
+### Part 2: Python / Pandas Data Wrangling & EDA
+
+#### 1. Run Cleaning and Analysis Pipeline
+
+```bash
 python analysis/clean_and_eda.py
 
-Execution Flow:
-Cleans payment method casing (CARD: 70, UPI: 55, COD: 55).
-Drops 5 duplicate orders (O0176–O0180), reducing row count from 180 to 175.
-Imputes missing discount_pct with 0 and rating with median (3.0).
-Reconciles total revenue delta (₹2,501.90) between raw (₹99,860.20) and clean (₹97,358.30).
-Flags bulk quantity outliers (O0011 quantity 25; O0098 quantity 30).
-Confirms high COD return rate (44.4%) and isolates highest-risk segment (COD + Tier-2 cities at 54.5%).
-Generates and exports narrator/findings.json.
+```
 
-2. Generate Visualizations:
-Bash
+**Execution Flow:**
+
+* Cleans payment method casing (**CARD**: 70, **UPI**: 55, **COD**: 55).
+* Drops 5 duplicate orders (`O0176`–`O0180`), reducing total row count from 180 to 175.
+* Imputes missing `discount_pct` with `0` and missing `rating` with the median (`3.0`).
+* Reconciles the total revenue delta (**₹2,501.90**) between raw (**₹99,860.20**) and clean (**₹97,358.30**).
+* Flags bulk quantity outliers (`O0011` quantity 25; `O0098` quantity 30).
+* Confirms high COD return rate (**44.4%**) and isolates the highest-risk segment (**COD + Tier-2 cities at 54.5%**).
+* Generates and exports `narrator/findings.json`.
+
+#### 2. Generate Visualizations
+
+```bash
 python analysis/visualize.py
-Outputs: visualizations/return_rate_by_payment.png and visualizations/monthly_revenue_trend.png.
 
-## Part 3: GenAI-Powered Insight Narrator
-1. Run Narrative Generator:
-Online Mode (Gemini API):
+```
+
+**Outputs:**
+
+* `visualizations/return_rate_by_payment.png`
+* `visualizations/monthly_revenue_trend.png`
+
+---
+
+### Part 3: GenAI-Powered Insight Narrator
+
+#### 1. Run Narrative Generator
+
+**Online Mode (Gemini API):**
 Set your API key as an environment variable and run:
-Bash
+
+```bash
 export GEMINI_API_KEY="your-api-key-here"
 python narrator/generate_narrative.py
 
-Offline Mode (Zero API Key / Fully Offline):
+```
+
+**Offline Mode (Zero API Key / Fully Offline):**
 If no API key is present or network calls fail, the script automatically uses the offline engine:
-Bash
+
+```bash
 unset GEMINI_API_KEY
 python narrator/generate_narrative.py
 
-2. Verification:
-The script asserts all 5 mandatory numbers (₹97,358.30, 44.4%, 54.5%, ₹2,501.90, March ₹20,318.90) exist in the output narrative and saves the validated text to narrator/sample_output.txt.
+```
 
-## DATA FLOW
+#### 2. Verification
+
+The script asserts that all 5 mandatory metrics exist in the output narrative before saving the validated text to `narrator/sample_output.txt`:
+
+1. Clean Revenue: **₹97,358.30**
+2. COD Return Rate: **44.4%**
+3. Tier-2 COD Return Rate: **54.5%**
+4. Duplicate Revenue Delta: **₹2,501.90**
+5. March Revenue: **₹20,318.90**
+
+---
+
+## Data Flow
+
+```text
 [data/*.csv] ──> [Part 1: SQLite Layer] ──> Reports & Verification
       │
       └──> [Part 2: analysis/clean_and_eda.py] ──> Clean, Deduplicate & Analyze
@@ -108,8 +166,3 @@ The script asserts all 5 mandatory numbers (₹97,358.30, 44.4%, 54.5%, ₹2,501
                                         └──> [narrator/generate_narrative.py]
                                                         │
                                                         └──> [narrator/sample_output.txt]
-
-
-
-
-
