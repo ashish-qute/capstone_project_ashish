@@ -1,0 +1,14 @@
+
+### Situation
+Mamaearth achieved a verified cleaned total revenue of ₹97,358.30 across 175 legitimate orders. Initial raw accounting figures indicated ₹99,860.20,
+but rigorous pipeline deduplication successfully identified and removed a duplicate-driven reconciliation delta of ₹2,501.90 caused by double-submit system errors.
+
+### Complication
+Order returns are severely eroding operational margins, heavily concentrated in Cash on Delivery (COD) transactions.
+While digital payment channels perform well—Card at 14.7% and UPI at 18.9%—the overall COD return rate stands at an alarming 44.4%.
+Multi-level segmentation reveals that the highest-risk segment is COD + Tier-2 cities, where the return rate climbs to a critical 54.5%.
+Furthermore, initial analysis mistakenly identified January as the top revenue month (₹29,582.10); however, after filtering out bulk order outliers, March 2026 was confirmed as the true peak month with ₹20,318.90 in organic revenue.
+
+### Resolution
+To protect gross margins, Regional Ops and Finance must immediately enforce targeted COD restrictions in Tier-2 markets, mandate automated OTP verification prior to dispatch for high-risk COD orders, and introduce incentives for UPI conversion.
+Additionally, operational resources should be reallocated to align capacity with true demand patterns peaking in March rather than outlier-inflated January figures.
